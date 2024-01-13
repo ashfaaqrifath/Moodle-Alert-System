@@ -33,8 +33,8 @@ def get_time_element(url):
 
 
 def telegram_notification(send):
-   bot_token = "6585671034:AAEemxbzcNCaPv-xrKK1Ro3eedvqbV20gHc"
-   my_chatID = "1813981055"
+   bot_token = "YOUR BOT TOKEN"
+   my_chatID = "YOUR CHAT ID"
    send_text = "https://api.telegram.org/bot" + bot_token + "/sendMessage?chat_id=" + my_chatID + "&parse_mode=Markdown&text=" + send
 
    response = requests.get(send_text)
@@ -60,9 +60,10 @@ if content is not None and title is not None and time is not None:
 
         *{notice_title}*
         _{notice_time}_
+        {'-'*50}
         {notice_content}
 
-        {'='*30}
+        {'-'*50}
         _SLIIT Moodle Alert System - v1.2.0_
         _Copyright (c) Ashfaaq Rifath_'''
 
