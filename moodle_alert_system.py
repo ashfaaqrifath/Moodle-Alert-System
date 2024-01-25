@@ -1,4 +1,5 @@
 import requests
+import time
 from bs4 import BeautifulSoup
 
 def get_div_class(url):
@@ -41,33 +42,40 @@ def telegram_notification(send):
    return response.json()
 
 
-site_url = "https://sam.sliitacademy.lk/"
+for x in range(1000):
 
-content = get_div_class(site_url)
-title = get_h3_class(site_url)
-time = get_time_element(site_url)
+    try:
+        site_url = "https://sam.sliitacademy.lk/"
 
-if content is not None and title is not None and time is not None:
-    num = 0
-    for i in range(3):
-        num = num + 1
-        notice_content = str(content[i])
-        notice_title = str(title[i])
-        notice_time = str(time[i])
+        content = get_div_class(site_url)
+        title = get_h3_class(site_url)
+        time_stamp = get_time_element(site_url)
 
-        output = f'''
-        *SITE ANNOUNCEMENT {num} 🔴*
+        if content is not None and title is not None and time_stamp is not None:
+            num = 0
+            for i in range(3):
+                num = num + 1
+                notice_content = str(content[i])
+                notice_title = str(title[i])
+                notice_time = str(time_stamp[i])
 
-        *{notice_title}*
-        _{notice_time}_
-        {'-'*50}
-        {notice_content}
+                output = f'''
+                *SITE ANNOUNCEMENT {num} 🔴*
 
-        {'-'*50}
-        _SLIIT Moodle Alert System - v1.2.0_
-        _Copyright (c) Ashfaaq Rifath_'''
+                *{notice_title}*
+                _{notice_time}_
+                {'-'*50}
+                {notice_content}
 
-        print(output)
-        telegram_notification(output)
-else:
-    print("error")
+                {'-'*50}
+                _SLIIT Moodle Alert System - v1.3_
+                _Copyright (c) Ashfaaq Rifath_'''
+
+                telegram_notification(output)
+            time.sleep(10800)
+        else:
+            print("error")
+
+    except:
+        #print("working...")
+        time.sleep(600)
