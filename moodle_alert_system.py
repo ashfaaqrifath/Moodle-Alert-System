@@ -1,6 +1,11 @@
-import requests
+import os
 import time
+import telebot
+import requests
+import threading
+import subprocess
 from bs4 import BeautifulSoup
+from plyer import notification
 
 def get_div_class(url):
     response = requests.get(url)
@@ -32,21 +37,38 @@ def get_time_element(url):
         time_list.append(time.text)
     return time_list
 
+def telegram_alert(send):
+    bot_token = "YOUR BOT TOKEN"
+    my_chatID = "CHAT ID"
+    send_text = "https://api.telegram.org/bot" + bot_token + "/sendMessage?chat_id=" + my_chatID + "&parse_mode=Markdown&text=" + send
 
-def telegram_notification(send):
-   bot_token = "YOUR BOT TOKEN"
-   my_chatID = "YOUR CHAT ID"
-   send_text = "https://api.telegram.org/bot" + bot_token + "/sendMessage?chat_id=" + my_chatID + "&parse_mode=Markdown&text=" + send
+    response = requests.get(send_text)
+    return response.json()
 
-   response = requests.get(send_text)
-   return response.json()
+###########################################################################
+pid = os.getpid()
 
+notification.notify(
+    title="Moodle Alert System",
+    message=f'''Program running in the background
+Process ID: {pid}''',
+    app_icon=None,
+    timeout=5,)
 
-for x in range(1000):
+with open("mas_pid.txt", "w") as f:
+    f.write(f"Moodle Alert System process ID: {str(pid)}")
+    f.close()
+#telegram_alert(f"PC process ID: {pid}")
 
-    try:
+###########################################################################
+
+bot = telebot.TeleBot("YOUR BOT TOKEN")
+@bot.message_handler(func=lambda message: True)
+
+def command_engine(message):
+    if message.text.lower() == "start":
+
         site_url = "https://sam.sliitacademy.lk/"
-
         content = get_div_class(site_url)
         title = get_h3_class(site_url)
         time_stamp = get_time_element(site_url)
@@ -58,7 +80,6 @@ for x in range(1000):
                 notice_content = str(content[i])
                 notice_title = str(title[i])
                 notice_time = str(time_stamp[i])
-
                 output = f'''
                 *SITE ANNOUNCEMENT {num} 🔴*
 
@@ -68,14 +89,71 @@ for x in range(1000):
                 {notice_content}
 
                 {'-'*50}
-                _SLIIT Moodle Alert System - v1.3_
+                _SLIIT Moodle Alert System - v1.4_
                 _Copyright (c) Ashfaaq Rifath_'''
 
-                telegram_notification(output)
-            time.sleep(10800)
+                telegram_alert(output)
         else:
-            print("error")
+            bot.reply_to(message, "Error")
 
-    except:
-        #print("working...")
-        time.sleep(600)
+    elif message.text.lower() == "stop":
+        notification.notify(
+        title="Moodle Alert System",
+        message="Program Termianted",
+        app_icon=None,
+        timeout=5,)
+
+        bot.reply_to(message, "Program Terminated")
+        subprocess.run(["taskkill", "/F", "/PID", str(pid)])
+    else:
+        bot.reply_to(message, "Invalid Command")
+
+def telegram_bot():
+    for x in range(1000):
+        try:
+            bot.polling()
+        except:
+            #print("bot")
+            time.sleep(5)
+
+def moodle_alert_system():
+    for x in range(1000):
+        try:
+            site_url = "https://sam.sliitacademy.lk/"
+
+            content = get_div_class(site_url)
+            title = get_h3_class(site_url)
+            time_stamp = get_time_element(site_url)
+
+            if content is not None and title is not None and time_stamp is not None:
+                num = 0
+                for i in range(3):
+                    num = num + 1
+                    notice_content = str(content[i])
+                    notice_title = str(title[i])
+                    notice_time = str(time_stamp[i])
+
+                    output = f'''
+                    *SITE ANNOUNCEMENT {num} 🔴*
+
+                    *{notice_title}*
+                    _{notice_time}_
+                    {'-'*50}
+                    {notice_content}
+
+                    {'-'*50}
+                    _SLIIT Moodle Alert System - v1.4_
+                    _Copyright (c) Ashfaaq Rifath_'''
+
+                    telegram_alert(output)
+                time.sleep(3600)
+            else:
+                quit()
+        except:
+            #print("Working...")
+            time.sleep(300)
+
+telegram_bot_thread = threading.Thread(target=telegram_bot)
+telegram_bot_thread.start()
+moodle_alert_system()
+telegram_bot_thread.join()
