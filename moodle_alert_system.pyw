@@ -1,11 +1,22 @@
 import os
 import time
-import telebot
-import requests
 import threading
 import subprocess
+import importlib
+
+packages = ["telebot", "requests", "beautifulsoup4", "plyer"]
+
+for pkg in packages:
+    if importlib.util.find_spec(pkg) is None:
+        subprocess.check_call(["pip", "install", pkg])
+    else:
+        pass
+
+import telebot
+import requests
 from bs4 import BeautifulSoup
 from plyer import notification
+
 
 def get_div_class(url):
     response = requests.get(url)
@@ -38,7 +49,7 @@ def get_time_element(url):
     return time_list
 
 def telegram_alert(send):
-    bot_token = "YOUR BOT TOKEN"
+    bot_token = "BOT TOKEN"
     my_chatID = "CHAT ID"
     send_text = "https://api.telegram.org/bot" + bot_token + "/sendMessage?chat_id=" + my_chatID + "&parse_mode=Markdown&text=" + send
 
@@ -62,7 +73,7 @@ with open("mas_pid.txt", "w") as f:
 
 ###########################################################################
 
-bot = telebot.TeleBot("YOUR BOT TOKEN")
+bot = telebot.TeleBot("BOT TOKEN")
 @bot.message_handler(func=lambda message: True)
 
 def command_engine(message):
@@ -74,9 +85,9 @@ def command_engine(message):
         time_stamp = get_time_element(site_url)
 
         if content is not None and title is not None and time_stamp is not None:
-            num = 0
-            for i in range(3):
-                num = num + 1
+            num = 4
+            for i in range(2, -1, -1):
+                num = num - 1
                 notice_content = str(content[i])
                 notice_title = str(title[i])
                 notice_time = str(time_stamp[i])
@@ -89,7 +100,7 @@ def command_engine(message):
                 {notice_content}
 
                 {'-'*50}
-                _SLIIT Moodle Alert System - v1.4_
+                _SLIIT Moodle Alert System - v1.5_
                 _Copyright (c) Ashfaaq Rifath_'''
 
                 telegram_alert(output)
@@ -109,7 +120,7 @@ def command_engine(message):
         bot.reply_to(message, "Invalid Command")
 
 def telegram_bot():
-    for x in range(1000):
+    while True:
         try:
             bot.polling()
         except:
@@ -117,7 +128,7 @@ def telegram_bot():
             time.sleep(5)
 
 def moodle_alert_system():
-    for x in range(1000):
+    while True:
         try:
             site_url = "https://sam.sliitacademy.lk/"
 
@@ -126,9 +137,9 @@ def moodle_alert_system():
             time_stamp = get_time_element(site_url)
 
             if content is not None and title is not None and time_stamp is not None:
-                num = 0
-                for i in range(3):
-                    num = num + 1
+                num = 4
+                for i in range(2, -1, -1):
+                    num = num - 1
                     notice_content = str(content[i])
                     notice_title = str(title[i])
                     notice_time = str(time_stamp[i])
@@ -142,7 +153,7 @@ def moodle_alert_system():
                     {notice_content}
 
                     {'-'*50}
-                    _SLIIT Moodle Alert System - v1.4_
+                    _SLIIT Moodle Alert System - v1.5_
                     _Copyright (c) Ashfaaq Rifath_'''
 
                     telegram_alert(output)
