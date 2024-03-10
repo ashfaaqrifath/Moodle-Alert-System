@@ -2,16 +2,6 @@ import os
 import time
 import threading
 import subprocess
-import importlib
-
-packages = ["telebot", "requests", "beautifulsoup4", "plyer"]
-
-for pkg in packages:
-    if importlib.util.find_spec(pkg) is None:
-        subprocess.check_call(["pip", "install", pkg])
-    else:
-        pass
-
 import telebot
 import requests
 from bs4 import BeautifulSoup
@@ -69,7 +59,6 @@ Process ID: {pid}''',
 with open("mas_pid.txt", "w") as f:
     f.write(f"Moodle Alert System process ID: {str(pid)}")
     f.close()
-#telegram_alert(f"PC process ID: {pid}")
 
 ###########################################################################
 
